@@ -31,7 +31,7 @@ _attrs = {
         mandatory = False,
     ),
     "sysroot": attr.string(
-        mandatory = True,
+        mandatory = False,
     ),
     "compile_flags": attr.string_list(
         mandatory = False,

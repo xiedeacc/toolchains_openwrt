@@ -1,3 +1,5 @@
+load("@bazel_skylib//lib:paths.bzl", "paths")
+
 def _print_repo_name_impl(ctx):
     repo_name = ctx.label.repository
     print("Repository name:", repo_name)

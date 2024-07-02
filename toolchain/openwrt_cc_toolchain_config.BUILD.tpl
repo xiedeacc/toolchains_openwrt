@@ -139,20 +139,8 @@ cc_toolchain_config(
         "objcopy": "{}/bin/aarch64-openwrt-linux-musl-objcopy.bin".format(toolchain_path_prefix),
         "objdump": "{}/bin/aarch64-openwrt-linux-musl-objdump.bin".format(toolchain_path_prefix),
         "strip": "{}/bin/aarch64-openwrt-linux-musl-strip.bin".format(toolchain_path_prefix),
-    }
-    compiler_configuration = {
-      "compile_flags": %{compile_flags_str},
-      "cxx_flags": %{cxx_flags_str},
-      "link_flags": %{link_flags_str},
-      "archive_flags": %{archive_flags_str},
-      "link_libs": %{link_libs},
-      "opt_compile_flags": %{opt_compile_flags_str},
-      "opt_link_flags": %{opt_link_flags_str},
-      "dbg_compile_flags": %{dbg_compile_flags_str},
-      "coverage_compile_flags": %{coverage_compile_flags_str},
-      "coverage_link_flags": %{coverage_link_flags_str},
-      "unfiltered_compile_flags": %{unfiltered_compile_flags_str},
     },
+    compiler_configuration = %{compiler_configuration},
     sysroot_path = %{sysroot_path},
     cxx_builtin_include_directories = %{cxx_builtin_include_directories},
 )
