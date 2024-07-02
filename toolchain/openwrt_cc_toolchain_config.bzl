@@ -17,14 +17,10 @@ def cc_toolchain_config(
     ]
 
     compile_flags = [
-        "--target=" + target_system_name,
         "-U_FORTIFY_SOURCE",  # https://github.com/google/sanitizers/issues/247
         "-fstack-protector",
         "-fno-omit-frame-pointer",
-        "-fcolor-diagnostics",
         "-Wall",
-        "-Wthread-safety",
-        "-Wself-assign",
     ]
 
     dbg_compile_flags = ["-g", "-fstandalone-debug"]
@@ -39,7 +35,6 @@ def cc_toolchain_config(
     ]
 
     link_flags = [
-        "--target=" + target_system_name,
         "-lm",
         "-no-canonical-prefixes",
     ]
@@ -52,43 +47,43 @@ def cc_toolchain_config(
         "-Wl,--hash-style=gnu",
         "-Wl,-z,relro,-z,now",
     ])
+    link_flags.extend([
+        "-l:libstdc++.a",
+    ])
 
     cxx_flags = [
         "-std=c++17",
     ]
-
-    link_flags.extend([
-        "-l:libstdc++.a",
-    ])
 
     opt_link_flags = ["-Wl,--gc-sections"]
 
     coverage_compile_flags = ["-fprofile-instr-generate", "-fcoverage-mapping"]
     coverage_link_flags = ["-fprofile-instr-generate"]
 
-    if compiler_configuration["compile_flags"] != None:
+    if compiler_configuration.get("compile_flags") != None:
         compile_flags = compiler_configuration["compile_flags"]
-    if compiler_configuration["cxx_flags"] != None:
+    if compiler_configuration.get("cxx_flags") != None:
         cxx_flags = compiler_configuration["cxx_flags"]
-    if compiler_configuration["link_flags"] != None:
+    if compiler_configuration.get("link_flags") != None:
         link_flags = compiler_configuration["link_flags"]
-    if compiler_configuration["archive_flags"] != None:
+    if compiler_configuration.get("archive_flags") != None:
         archive_flags = compiler_configuration["archive_flags"]
-    if compiler_configuration["link_libs"] != None:
+    if compiler_configuration.get("link_libs") != None:
         link_libs = compiler_configuration["link_libs"]
-    if compiler_configuration["opt_compile_flags"] != None:
+    if compiler_configuration.get("opt_compile_flags") != None:
         opt_compile_flags = compiler_configuration["opt_compile_flags"]
-    if compiler_configuration["opt_link_flags"] != None:
+    if compiler_configuration.get("opt_link_flags") != None:
         opt_link_flags = compiler_configuration["opt_link_flags"]
-    if compiler_configuration["dbg_compile_flags"] != None:
+    if compiler_configuration.get("dbg_compile_flags") != None:
         dbg_compile_flags = compiler_configuration["dbg_compile_flags"]
-    if compiler_configuration["coverage_compile_flags"] != None:
+    if compiler_configuration.get("coverage_compile_flags") != None:
         coverage_compile_flags = compiler_configuration["coverage_compile_flags"]
-    if compiler_configuration["coverage_link_flags"] != None:
+    if compiler_configuration.get("coverage_link_flags") != None:
         coverage_link_flags = compiler_configuration["coverage_link_flags"]
-    if compiler_configuration["unfiltered_compile_flags"] != None:
+    if compiler_configuration.get("unfiltered_compile_flags") != None:
         unfiltered_compile_flags = compiler_configuration["unfiltered_compile_flags"]
 
+    print(link_flags)
     unix_cc_toolchain_config(
         name = name,
         cpu = "aarch64",

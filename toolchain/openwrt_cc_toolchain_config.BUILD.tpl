@@ -6,6 +6,8 @@ load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
 load("@toolchains_llvm//toolchain/internal:system_module_map.bzl", "system_module_map")
 load("%{cc_toolchain_config_bzl}", "cc_toolchain_config")
 
+filegroup(name = "empty")
+
 filegroup(
     name = "internal-use-symlinked-tools",
     srcs = [
@@ -41,14 +43,6 @@ filegroup(
 filegroup(
     name = "compiler-components-%{suffix}",
     srcs = [
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-cc.bin",
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-c++.bin",
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-cpp.bin",
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-g++.bin",
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-gcc.bin",
-        "%{toolchain_path_prefix}include",
-        "%{toolchain_path_prefix}aarch64-openwrt-linux-musl/include",
-        "%{toolchain_path_prefix}aarch64-openwrt-linux-musl/sys-include",
         ":sysroot-components-%{suffix}",
         %{extra_compiler_files}
     ],
@@ -57,9 +51,6 @@ filegroup(
 filegroup(
     name = "linker-components-%{suffix}",
     srcs = [
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-ar.bin",
-        "%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-ld.bin",
-        "%{toolchain_path_prefix}lib",
         ":sysroot-components-%{suffix}",
     ],
 )
@@ -67,19 +58,18 @@ filegroup(
 filegroup(
     name = "all-components-%{suffix}",
     srcs = [
-        "%{toolchain_path_prefix}bin",
         ":compiler-components-%{suffix}",
         ":linker-components-%{suffix}",
     ],
 )
 
 filegroup(name = "all-files-%{suffix}", srcs = [":all-components-%{suffix}", ":internal-use-files"])
-filegroup(name = "archiver-files-%{suffix}", srcs = ["%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-ar.bin", ":internal-use-files"])
-filegroup(name = "assembler-files-%{suffix}", srcs = ["%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-as.bin", ":internal-use-files"])
+filegroup(name = "archiver-files-%{suffix}", srcs = [":internal-use-files"])
+filegroup(name = "assembler-files-%{suffix}", srcs = [":internal-use-files"])
 filegroup(name = "compiler-files-%{suffix}", srcs = [":compiler-components-%{suffix}", ":internal-use-files"])
 filegroup(name = "linker-files-%{suffix}", srcs = [":linker-components-%{suffix}", ":internal-use-files"])
-filegroup(name = "objcopy-files-%{suffix}", srcs = ["%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-objcopy.bin", ":internal-use-files"])
-filegroup(name = "strip-files-%{suffix}", srcs = ["%{toolchain_path_prefix}bin/aarch64-openwrt-linux-musl-strip.bin", ":internal-use-files"])
+filegroup(name = "objcopy-files-%{suffix}", srcs = [":internal-use-files"])
+filegroup(name = "strip-files-%{suffix}", srcs = [":internal-use-files"])
 
 filegroup(
     name = "include-components-%{suffix}",
@@ -106,7 +96,7 @@ toolchain(
         "@platforms//cpu:%{target_arch}",
         "@platforms//os:linux",
     ],
-    target_settings = %{target_settings},
+    #target_settings = "%{target_settings}",
     toolchain = ":gcc-%{suffix}",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
@@ -122,25 +112,26 @@ cc_toolchain(
     strip_files = "strip-files-%{suffix}",
     toolchain_config = "local-%{suffix}",
     module_map = "module-%{suffix}",
+    dwp_files = ":empty",
 )
 
 cc_toolchain_config(
     name = "local-%{suffix}",
-    toolchain_identifier = "openwrt_toolchain_${suffix}",
+    toolchain_identifier = "openwrt_toolchain_%{suffix}",
     target_system_name = "%{target_system_name}",
     tool_paths = {
-        "ar": "{}/bin/aarch64-openwrt-linux-musl-ar".format(toolchain_path_prefix),
-        "ld": "{}/bin/aarch64-openwrt-linux-musl-ld.bin".format(toolchain_path_prefix),
-        "llvm-cov": "{}/bin/aarch64-openwrt-linux-musl-gcov.bin".format(toolchain_path_prefix),
-        "gcov": "{}/bin/aarch64-openwrt-linux-musl-gcov.bin".format(toolchain_path_prefix),
-        "cpp": "{}/bin/aarch64-openwrt-linux-musl-cpp.bin".format(toolchain_path_prefix),
-        "gcc": "{}/bin/aarch64-openwrt-linux-musl-gcc.bin".format(toolchain_path_prefix),
-        "nm": "{}/bin/aarch64-openwrt-linux-musl-nm.bin".format(toolchain_path_prefix),
-        "objcopy": "{}/bin/aarch64-openwrt-linux-musl-objcopy.bin".format(toolchain_path_prefix),
-        "objdump": "{}/bin/aarch64-openwrt-linux-musl-objdump.bin".format(toolchain_path_prefix),
-        "strip": "{}/bin/aarch64-openwrt-linux-musl-strip.bin".format(toolchain_path_prefix),
+        "ar": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-ar",
+        "ld": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-ld.bin",
+        "llvm-cov": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-gcov.bin",
+        "gcov": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-gcov.bin",
+        "cpp": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-cpp.bin",
+        "gcc": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-gcc.bin",
+        "nm": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-nm.bin",
+        "objcopy": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-objcopy.bin",
+        "objdump": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-objdump.bin",
+        "strip": "%{toolchain_path_prefix}/toolchain-aarch64_generic_gcc-12.3.0_musl/bin/aarch64-openwrt-linux-musl-strip.bin",
     },
     compiler_configuration = %{compiler_configuration},
-    sysroot_path = %{sysroot_path},
+    sysroot_path = "%{sysroot_path}",
     cxx_builtin_include_directories = %{cxx_builtin_include_directories},
 )

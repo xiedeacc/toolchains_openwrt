@@ -65,6 +65,14 @@ def list_to_string(ls):
         return "None"
     return "[{}]".format(", ".join(["\"{}\"".format(d) for d in ls]))
 
+def dict_to_string(d):
+    if d == None:
+        return "None"
+    parts = []
+    for key, value in d.items():
+        parts.append("\"{}\": {}".format(key, value))
+    return "{%s}" % ", ".join(parts)
+
 def download_openwrt(rctx):
     urls = [rctx.attr.url]
     res = rctx.download_and_extract(

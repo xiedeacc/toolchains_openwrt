@@ -1,6 +1,7 @@
 load(
     "//toolchain:common.bzl",
     _canonical_dir_path = "canonical_dir_path",
+    _dict_to_string = "dict_to_string",
     _generate_build_file = "generate_build_file",
     _is_absolute_path = "is_absolute_path",
     _join = "join",
@@ -29,75 +30,80 @@ def openwrt_toolchain_config_impl(rctx):
     symlinked_tools = ""
     extra_compiler_files = ("\"%s\"," % str(rctx.attr.extra_compiler_files)) if rctx.attr.extra_compiler_files else ""
     cxx_builtin_include_directories = [
-        toolchain_path_prefix + "include",
-        toolchain_path_prefix + "aarch64-openwrt-linux-musl/include/c++/12.3.0",
-        toolchain_path_prefix + "aarch64-openwrt-linux-musl/sys-include",
+        toolchain_path_prefix + "toolchain-aarch64_generic_gcc-12.3.0_musl/include",
+        toolchain_path_prefix + "toolchain-aarch64_generic_gcc-12.3.0_musl/aarch64-openwrt-linux-musl/include/c++/12.3.0",
+        toolchain_path_prefix + "toolchain-aarch64_generic_gcc-12.3.0_musl/aarch64-openwrt-linux-musl/sys-include",
     ]
-
+    print(cxx_builtin_include_directories)
     sysroot_label_str = ""
     sysroot_path = ""
-    if rctx.attr.sysroot:
-        if _is_absolute_path(rctx.attr.sysroot):
-            sysroot_path = rctx.attr.sysroot
-        else:
-            sysroot_label = rctx.attr.sysroot
-    if rctx.attr.sysroot:
-        sysroot_prefix = "%sysroot%"
-        cxx_builtin_include_directories.extend([
-            _join(sysroot_prefix, "/include"),
-            _join(sysroot_prefix, "/usr/include"),
-            _join(sysroot_prefix, "/usr/local/include"),
-        ])
+    #if rctx.attr.sysroot:
+    #if _is_absolute_path(rctx.attr.sysroot):
+    #sysroot_path = rctx.attr.sysroot
+    #else:
+    #sysroot_label = rctx.attr.sysroot
+    #if rctx.attr.sysroot:
+    #sysroot_prefix = "%sysroot%"
+    #cxx_builtin_include_directories.extend([
+    #_join(sysroot_prefix, "/include"),
+    #_join(sysroot_prefix, "/usr/include"),
+    #_join(sysroot_prefix, "/usr/local/include"),
+    #])
 
-    cxx_builtin_include_directories = _list_to_string([
-        dir
-        for dir in cxx_builtin_include_directories
-        if _is_hermetic_or_exists(rctx, dir, sysroot_path)
-    ])
+    #cxx_builtin_include_directories = _list_to_string([
+    #dir
+    #for dir in cxx_builtin_include_directories
+    #if _is_hermetic_or_exists(rctx, dir, sysroot_path)
+    #])
 
+    print(cxx_builtin_include_directories)
     target_arch = rctx.attr.arch
-    target_settings = ""
+    target_settings = "None"
     target_system_name = "aarch64-linux"
 
     ##target_system_name= "armeabi-linux"
     ##target_system_name= "armv7a-linux"
     ##target_system_name= "armv7-linux"
-    if rctx.attr.compile_flags:
-        compile_flags_str = _list_to_string(rctx.attr.compile_flags)
-    if rctx.attr.cxx_flags:
-        cxx_flags_str = _list_to_string(rctx.attr.cxx_flags)
-    if rctx.attr.link_flags:
-        link_flags_str = _list_to_string(rctx.attr.link_flags)
-    if rctx.attr.archive_flags:
-        archive_flags_str = _list_to_string(rctx.attr.archive_flags)
-    if rctx.attr.link_libs:
-        link_libs_str = _list_to_string(rctx.attr.link_libs)
-    if rctx.attr.opt_compile_flags:
-        opt_compile_flags_str = _list_to_string(rctx.attr.opt_compile_flags)
-    if rctx.attr.opt_link_flags:
-        opt_link_flags_str = _list_to_string(rctx.attr.opt_link_flags)
-    if rctx.attr.dbg_compile_flags:
-        dbg_compile_flags_str = _list_to_string(rctx.attr.dbg_compile_flags)
-    if rctx.attr.coverage_compile_flags:
-        coverage_compile_flags_str = _list_to_string(rctx.attr.coverage_compile_flags)
-    if rctx.attr.coverage_link_flags:
-        coverage_link_flags_str = _list_to_string(rctx.attr.coverage_link_flags)
-    if rctx.attr.unfiltered_compile_flags:
-        unfiltered_compile_flags_str = _list_to_string(rctx.attr.unfiltered_compile_flags)
+    link_flags = [
+        "-L{}toolchain-aarch64_generic_gcc-12.3.0_musl/lib".format(toolchain_path_prefix),
+        "-B{}toolchain-aarch64_generic_gcc-12.3.0_musl/bin".format(toolchain_path_prefix),
+        "-lm",
+        "-lstdc++",
+        "-no-canonical-prefixes",
+        "-Wl,--build-id=md5",
+        "-Wl,--hash-style=gnu",
+        "-Wl,-z,relro,-z,now",
+    ]
+    print(_list_to_string(link_flags))
+    compiler_configuration = dict()
+    if rctx.attr.compile_flags and len(rctx.attr.compile_flags) != 0:
+        compiler_configuration["compile_flags"] = _list_to_string(rctx.attr.compile_flags)
+    if rctx.attr.cxx_flags and len(rctx.attr.cxx_flags) != 0:
+        compiler_configuration["cxx_flags"] = _list_to_string(rctx.attr.cxx_flags)
+    if rctx.attr.link_flags and len(rctx.attr.link_flags) != 0:
+        compiler_configuration["link_flags"] = _list_to_string(rctx.attr.link_flags)
+    if len(link_flags) != 0:
+        compiler_configuration["link_flags"] = _list_to_string(link_flags)
+    if rctx.attr.archive_flags and len(rctx.attr.archive_flags) != 0:
+        compiler_configuration["archive_flags"] = _list_to_string(rctx.attr.archive_flags)
+    if rctx.attr.link_libs and len(rctx.attr.link_libs) != 0:
+        compiler_configuration["link_libs"] = _list_to_string(rctx.attr.link_libs)
+    if rctx.attr.opt_compile_flags and len(rctx.attr.opt_compile_flags) != 0:
+        compiler_configuration["opt_compile_flags"] = _list_to_string(rctx.attr.opt_compile_flags)
+    if rctx.attr.opt_link_flags and len(rctx.attr.opt_link_flags) != 0:
+        compiler_configuration["opt_link_flags"] = _list_to_string(rctx.attr.opt_link_flags)
+    if rctx.attr.dbg_compile_flags and len(rctx.attr.dbg_compile_flags) != 0:
+        compiler_configuration["dbg_compile_flags"] = _list_to_string(rctx.attr.dbg_compile_flags)
+    if rctx.attr.coverage_compile_flags and len(rctx.attr.coverage_compile_flags) != 0:
+        compiler_configuration["coverage_compile_flags"] = _list_to_string(rctx.attr.coverage_compile_flags)
+    if rctx.attr.coverage_link_flags and len(rctx.attr.coverage_link_flags) != 0:
+        compiler_configuration["coverage_link_flags"] = _list_to_string(rctx.attr.coverage_link_flags)
+    if rctx.attr.unfiltered_compile_flags and len(rctx.attr.unfiltered_compile_flags) != 0:
+        compiler_configuration["unfiltered_compile_flags"] = _list_to_string(rctx.attr.unfiltered_compile_flags)
 
-    compiler_configuration = {
-      "compile_flags": %{compile_flags_str},
-      "cxx_flags": %{cxx_flags_str},
-      "link_flags": %{link_flags_str},
-      "archive_flags": %{archive_flags_str},
-      "link_libs": %{link_libs},
-      "opt_compile_flags": %{opt_compile_flags_str},
-      "opt_link_flags": %{opt_link_flags_str},
-      "dbg_compile_flags": %{dbg_compile_flags_str},
-      "coverage_compile_flags": %{coverage_compile_flags_str},
-      "coverage_link_flags": %{coverage_link_flags_str},
-      "unfiltered_compile_flags": %{unfiltered_compile_flags_str},
-    },
+    compiler_configuration_str = _dict_to_string(compiler_configuration)
+    print(compiler_configuration_str)
+    print(extra_compiler_files)
     #filenames = []
     #for libname in _aliased_libs:
     #filename = "lib/{}.{}".format(libname, exec_dl_ext)
@@ -119,7 +125,7 @@ def openwrt_toolchain_config_impl(rctx):
 
     rctx.template(
         "BUILD.bazel",
-        "//toolchain:openwrt_cc_toolchain_config.BUILD.tpl",
+        Label("//toolchain:openwrt_cc_toolchain_config.BUILD.tpl"),
         {
             "%{suffix}": suffix,
             "%{target_system_name}": target_system_name,
@@ -127,22 +133,14 @@ def openwrt_toolchain_config_impl(rctx):
             "%{target_settings}": target_settings,
             "%{target_os_bzl}": "linux",
             "%{sysroot_label_str}": sysroot_label_str,
+            "%{extra_compiler_files}": extra_compiler_files,
             "%{sysroot_path}": sysroot_path,
             "%{toolchain_path_prefix}": toolchain_path_prefix,
-            "%{cxx_builtin_include_directories}": cxx_builtin_include_directories,
+            "%{cxx_builtin_include_directories}": _list_to_string(cxx_builtin_include_directories),
             "%{symlinked_tools}": symlinked_tools,
             #"%{wrapper_bin_prefix}": wrapper_bin_prefix,
-            "%{compile_flags}": compile_flags_str,
-            "%{cxx_flags}": cxx_flags_str,
-            "%{link_flags}": link_flags_str,
-            "%{archive_flags}": archive_flags_str,
-            "%{link_libs}": link_libs_str,
-            "%{opt_compile_flags}": opt_compile_flags_str,
-            "%{opt_link_flags}": opt_link_flags_str,
-            "%{dbg_compile_flags}": dbg_compile_flags_str,
-            "%{coverage_compile_flags}": coverage_compile_flags_str,
-            "%{coverage_link_flags}": coverage_link_flags_str,
-            "%{unfiltered_compile_flags}": unfiltered_compile_flags_str,
+            "%{compiler_configuration}": compiler_configuration_str,
+            "%{target_arch}": target_arch,
         },
     )
-    _generate_build_file(rctx)
+    #_generate_build_file(rctx)
