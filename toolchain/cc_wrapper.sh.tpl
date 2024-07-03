@@ -6,23 +6,23 @@ set -euo pipefail
 # See note in toolchain/internal/configure.bzl where we define
 # `wrapper_bin_prefix` for why this wrapper is needed.
 
-if [[ -f %{toolchain_path_prefix}bin/clang ]]; then
+if [[ -f %{toolchain_path_prefix}bin/%{gcc_name} ]]; then
   execroot_path=""
 elif [[ ${BASH_SOURCE[0]} == "/"* ]]; then
   # Some consumers of `CcToolchainConfigInfo` (e.g. `cmake` from rules_foreign_cc)
   # change CWD and call $CC (this script) with its absolute path.
-  # For cases like this, we'll try to find `clang` through an absolute path.
+  # For cases like this, we'll try to find `gcc` through an absolute path.
   # This script is at _execroot_/external/_repo_name_/bin/cc_wrapper.sh
   execroot_path="${BASH_SOURCE[0]%/*/*/*/*}/"
 else
-  echo >&2 "ERROR: could not find clang; PWD=\"${PWD}\"; PATH=\"${PATH}\"."
+  echo >&2 "ERROR: could not find gcc; PWD=\"${PWD}\"; PATH=\"${PATH}\"."
   exit 5
 fi
 
 function sanitize_option() {
   local -r opt=$1
   if [[ ${opt} == */cc_wrapper.sh ]]; then
-    printf "%s" "${execroot_path}%{toolchain_path_prefix}bin/clang"
+    printf "%s" "${execroot_path}%{toolchain_path_prefix}bin/%{gcc_name}"
   elif [[ ${opt} =~ ^-fsanitize-(ignore|black)list=[^/] ]]; then
     # shellcheck disable=SC2206
     parts=(${opt/=/ }) # Split flag name and value into array.

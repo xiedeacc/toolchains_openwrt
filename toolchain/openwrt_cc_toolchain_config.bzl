@@ -83,7 +83,6 @@ def cc_toolchain_config(
     if compiler_configuration.get("unfiltered_compile_flags") != None:
         unfiltered_compile_flags = compiler_configuration["unfiltered_compile_flags"]
 
-    print(link_flags)
     unix_cc_toolchain_config(
         name = name,
         cpu = "aarch64",

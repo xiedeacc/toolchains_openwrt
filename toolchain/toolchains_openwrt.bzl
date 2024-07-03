@@ -27,10 +27,29 @@ _attrs = {
     "sha256sum": attr.string(
         mandatory = True,
     ),
-    "extra_compiler_files": attr.label(
+    "toolchain_prefix": attr.string(
         mandatory = False,
+        default = "toolchain-aarch64_generic_gcc-12.3.0_musl",
+    ),
+    "tool_names": attr.string_dict(
+        mandatory = False,
+        default = {
+            "ar": "aarch64-openwrt-linux-musl-ar",
+            "ld": "aarch64-openwrt-linux-musl-ld.bin",
+            "llvm-cov": "aarch64-openwrt-linux-musl-gcov.bin",
+            "gcov": "aarch64-openwrt-linux-musl-gcov.bin",
+            "cpp": "aarch64-openwrt-linux-musl-cpp.bin",
+            "gcc": "aarch64-openwrt-linux-musl-gcc.bin",
+            "nm": "aarch64-openwrt-linux-musl-nm.bin",
+            "objcopy": "aarch64-openwrt-linux-musl-objcopy.bin",
+            "objdump": "aarch64-openwrt-linux-musl-objdump.bin",
+            "strip": "aarch64-openwrt-linux-musl-strip.bin",
+        },
     ),
     "sysroot": attr.string(
+        mandatory = False,
+    ),
+    "extra_compiler_files": attr.label(
         mandatory = False,
     ),
     "compile_flags": attr.string_list(
@@ -64,9 +83,6 @@ _attrs = {
         mandatory = False,
     ),
     "unfiltered_compile_flags": attr.string_list(
-        mandatory = False,
-    ),
-    "target_settings": attr.string_list(
         mandatory = False,
     ),
 }
@@ -103,5 +119,20 @@ def openwrt_toolchain_setup(name, **kwargs):
             aargs["url"] = chip_version_info.get("url")
             aargs["arch"] = chip_version_info.get("arch")
             aargs["sha256sum"] = chip_version_info.get("sha256sum")
+            aargs["toolchain_prefix"] = chip_version_info.get("toolchain_prefix")
+            aargs["tool_names"] = chip_version_info.get("tool_names")
+            aargs["sysroot"] = chip_version_info.get("sysroot")
+            aargs["extra_compiler_files"] = chip_version_info.get("extra_compiler_files")
+            aargs["compile_flags"] = chip_version_info.get("compile_flags")
+            aargs["cxx_flags"] = chip_version_info.get("cxx_flags")
+            aargs["link_flags"] = chip_version_info.get("link_flags")
+            aargs["archive_flags"] = chip_version_info.get("archive_flags")
+            aargs["link_libs"] = chip_version_info.get("link_libs")
+            aargs["opt_compile_flags"] = chip_version_info.get("opt_compile_flags")
+            aargs["opt_link_flags"] = chip_version_info.get("opt_link_flags")
+            aargs["dbg_compile_flags"] = chip_version_info.get("dbg_compile_flags")
+            aargs["coverage_compile_flags"] = chip_version_info.get("coverage_compile_flags")
+            aargs["coverage_link_flags"] = chip_version_info.get("coverage_link_flags")
+            aargs["unfiltered_compile_flags"] = chip_version_info.get("unfiltered_compile_flags")
             openwrt_toolchain_repo(name = "openwrt_toolchain_repo_{}_{}".format(chip_model, chip_version), **aargs)
             openwrt_toolchain_config(name = "openwrt_toolchain_config_{}_{}".format(chip_model, chip_version), **aargs)
