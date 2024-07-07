@@ -48,6 +48,7 @@ def openwrt_toolchain_config_impl(rctx):
         toolchain_path_prefix + "include",
         toolchain_path_prefix + "aarch64-openwrt-linux-musl/include/c++/12.3.0",
         toolchain_path_prefix + "aarch64-openwrt-linux-musl/sys-include",
+        toolchain_path_prefix + "lib/gcc/aarch64-openwrt-linux-musl/12.3.0/include",
     ]
 
     sysroot_label_str = ""
