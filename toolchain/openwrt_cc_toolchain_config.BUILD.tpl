@@ -110,7 +110,7 @@ cc_toolchain(
     objcopy_files = "objcopy-files-%{suffix}",
     strip_files = "strip-files-%{suffix}",
     toolchain_config = "local-%{suffix}",
-    module_map = "module-%{suffix}",
+    #module_map = "module-%{suffix}",
     dwp_files = ":empty",
 )
 

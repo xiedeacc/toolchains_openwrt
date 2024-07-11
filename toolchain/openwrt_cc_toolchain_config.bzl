@@ -106,6 +106,6 @@ def cc_toolchain_config(
         coverage_compile_flags = coverage_compile_flags,
         coverage_link_flags = coverage_link_flags,
         supports_start_end_lib = False,
-        builtin_sysroot = sysroot_path,
+        builtin_sysroot = "/root/src/software/openwrt/openwrt-toolchain-23.05.3-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64/toolchain-aarch64_generic_gcc-12.3.0_musl",
         cxx_builtin_include_directories = cxx_builtin_include_directories,
     )

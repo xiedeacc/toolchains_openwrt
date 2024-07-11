@@ -35,7 +35,6 @@ def openwrt_toolchain_config_impl(rctx):
     for k, v in rctx.attr.tool_names.items():
         tool_paths[k] = "\"{}bin/{}\"".format(toolchain_path_prefix, v)
 
-    print(toolchain_path_prefix)
     print(tool_paths)
 
     cc_toolchain_config_bzl = "@toolchains_openwrt//toolchain:openwrt_cc_toolchain_config.bzl"
